@@ -5,10 +5,11 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
   context: path.resolve(__dirname,"./src"),
   resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    extensions: [".js", ".ts", ".tsx"],
   },
   entry: {
     app: "./index.tsx",
+    styles: "./styles.scss",
   },
   output: {
     filename: "[name].[chunkhash].js",
@@ -28,7 +29,20 @@ module.exports = {
       {
         test: /\.scss$/,
         exclude: /node_modules/,
-        use: ["style-loader", "css-loader", "sass-loader"],
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "css-loader",
+            options: {
+              modules: {
+                exportLocalsConvention: "camelCase",
+                localIdentName: "[path][name]__[local]--[hash:base64:5]",
+                localIdentContext: path.resolve(__dirname, "src"),
+              },
+            },
+          },
+          "sass-loader",
+        ],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
@@ -45,6 +59,7 @@ module.exports = {
   devServer: {
     port: 8080,
   },
+  devtool: "eval-source-map",
   plugins: [
     new HtmlWebpackPlugin({
       template: "index.html",
